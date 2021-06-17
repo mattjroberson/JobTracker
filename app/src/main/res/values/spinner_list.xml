@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="jobs_array">
+        <item>Job</item>
+        <item>Clinic</item>
+        <item>Grandpa\'s</item>
+        <item>Home</item>
+    </string-array>
+
+    <string-array name="tasks_array">
+        <item>Task</item>
+        <item>Mow</item>
+        <item>Weed-eat</item>
+        <item>Cleanup</item>
+    </string-array>
+</resources>
