@@ -1,20 +1,24 @@
-package com.matthew.jobtracker
+package com.matthew.jobtracker.activities
 
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import com.matthew.jobtracker.popups.NewTaskFragment
+import com.matthew.jobtracker.R
+import com.matthew.jobtracker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(findViewById(R.id.toolbar))
 
-        findViewById<FloatingActionButton>(R.id.fab).setOnClickListener { createNewTask() }
+        val binding = ActivityMainBinding.inflate(layoutInflater)
+
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
+
+        binding.fab.setOnClickListener { createNewTask() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -35,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun createNewTask() {
+    private fun createNewTask() {
         val newFragment = NewTaskFragment()
         newFragment.show(supportFragmentManager, "new_task")
     }
