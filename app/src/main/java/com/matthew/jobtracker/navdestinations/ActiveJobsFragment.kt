@@ -1,35 +1,43 @@
 package com.matthew.jobtracker.navdestinations
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.matthew.jobtracker.databinding.FragmentFirstBinding
-import com.matthew.jobtracker.recyclerviews.RvActiveJobItem
+import com.matthew.jobtracker.databinding.FragmentActiveJobsBinding
 import com.matthew.jobtracker.recyclerviews.RvAdapter
+import com.matthew.jobtracker.recyclerviews.RvItem
 
-class ActiveJobFragment : Fragment() {
-    private var _binding: FragmentFirstBinding? = null
+class ActiveJobsFragment : Fragment() {
+    private var _binding: FragmentActiveJobsBinding? = null
     private val binding get() = _binding!!
 
-    private var curJobItems = mutableListOf<RvActiveJobItem>()
+    private var curJobItems = mutableListOf<RvItem>()
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentActiveJobsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        curJobItems.add(RvActiveJobItem("TEST") { _: RvActiveJobItem, _: RvActiveJobItem.Companion.ActionType -> })
+        curJobItems.add(RvItem("TEST", "4:31") { navigateToActiveTasks() })
+        curJobItems.add(RvItem("Hello World!", "") { })
         connectRecyclerAdapter(view)
+    }
+
+    private fun navigateToActiveTasks(){
+        val action = ActiveJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment()
+        findNavController().navigate(action)
     }
 
     private fun connectRecyclerAdapter(view: View){

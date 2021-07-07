@@ -79,7 +79,6 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("Not yet implemented")
     }
 
     //Check to see that both input fields are valid, update positive button accordingly

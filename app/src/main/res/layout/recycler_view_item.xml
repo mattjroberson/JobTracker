@@ -8,7 +8,7 @@
     android:paddingHorizontal="15dp">
 
     <TextView
-        android:id="@+id/textView_job"
+        android:id="@+id/rv_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView_job_time"
+        android:id="@+id/rv_subtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 

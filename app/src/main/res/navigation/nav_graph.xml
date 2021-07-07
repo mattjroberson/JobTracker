@@ -3,11 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/ActiveJobsFragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.matthew.jobtracker.navdestinations.ActiveJobFragment"
-        android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first"/>
+        android:id="@+id/ActiveJobsFragment"
+        android:name="com.matthew.jobtracker.navdestinations.ActiveJobsFragment"
+        android:label="/active_job_fragment_label"
+        tools:layout="@layout/fragment_active_jobs" >
+        <action
+            android:id="@+id/action_ActiveJobsFragment_to_activeTasksFragment"
+            app:destination="@id/ActiveTasksFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/JobSettingsMenuFragment"
+        android:name="com.matthew.jobtracker.navdestinations.JobSettingsMenuFragment"
+        android:label="fragment_settings_menu"
+        tools:layout="@layout/fragment_job_settings_menu" >
+        <action
+            android:id="@+id/action_SettingsMenuFragment_to_taskSettingsMenuFragment"
+            app:destination="@id/TaskSettingsMenuFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/TaskSettingsMenuFragment"
+        android:name="com.matthew.jobtracker.navdestinations.TaskSettingsMenuFragment"
+        android:label="fragment_task_settings_menu"
+        tools:layout="@layout/fragment_task_settings_menu" />
+    <fragment
+        android:id="@+id/ActiveTasksFragment"
+        android:name="com.matthew.jobtracker.navdestinations.ActiveTasksFragment"
+        android:label="fragment_active_tasks"
+        tools:layout="@layout/fragment_active_tasks" />
+
 </navigation>

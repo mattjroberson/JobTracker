@@ -13,4 +13,7 @@
     <string name="new_task_ok">ok</string>
     <string name="new_task_cancel">cancel</string>
 
+    <string name="new_setting_save">save</string>
+    <string name="new_setting_discard">discard</string>
+
 </resources>
