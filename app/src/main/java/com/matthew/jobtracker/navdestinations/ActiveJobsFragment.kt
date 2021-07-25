@@ -1,14 +1,15 @@
 package com.matthew.jobtracker.navdestinations
 
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.databinding.FragmentActiveJobsBinding
+import com.matthew.jobtracker.popups.NewTaskFragment
 import com.matthew.jobtracker.recyclerviews.RvAdapter
 import com.matthew.jobtracker.recyclerviews.RvItem
 
@@ -30,9 +31,19 @@ class ActiveJobsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        curJobItems.add(RvItem("TEST", "4:31") { navigateToActiveTasks() })
-        curJobItems.add(RvItem("Hello World!", "") { })
+        val db = DatabaseHelper(requireContext())
+
+        db.getJobs().forEach(){
+            curJobItems.add(RvItem(it.name, it.getTotalTime().toString()) { navigateToActiveTasks() })
+        }
+
+        binding.fab.setOnClickListener {
+            val newFragment = NewTaskFragment()
+            newFragment.show(parentFragmentManager, "new_task")
+        }
+
         connectRecyclerAdapter(view)
+
     }
 
     private fun navigateToActiveTasks(){

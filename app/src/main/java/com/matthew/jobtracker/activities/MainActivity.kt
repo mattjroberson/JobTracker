@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-        binding.fab.setOnClickListener { createNewTask() }
         navController = findNavController(R.id.nav_host_fragment)
     }
 
@@ -43,26 +42,6 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    private fun createNewTask() {
-        val curFragId = navController.currentDestination?.id
-
-        //TODO: Refactor
-        when(curFragId){
-            R.id.ActiveJobsFragment -> {
-                val newFragment = NewTaskFragment()
-                newFragment.show(supportFragmentManager, "new_task")
-            }
-            R.id.JobSettingsMenuFragment -> {
-                val newFragment = NewSettingFragment()
-                newFragment.show(supportFragmentManager, "new_job_setting")
-            }
-            R.id.TaskSettingsMenuFragment -> {
-                val newFragment = NewSettingFragment()
-                newFragment.show(supportFragmentManager, "new_task_setting")
-            }
         }
     }
 }

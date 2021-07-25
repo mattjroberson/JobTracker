@@ -22,12 +22,25 @@
         <action
             android:id="@+id/action_SettingsMenuFragment_to_taskSettingsMenuFragment"
             app:destination="@id/TaskSettingsMenuFragment" />
+        <action
+            android:id="@+id/action_JobSettingsMenuFragment_to_ActiveJobsFragment"
+            app:destination="@id/ActiveJobsFragment" />
     </fragment>
     <fragment
         android:id="@+id/TaskSettingsMenuFragment"
         android:name="com.matthew.jobtracker.navdestinations.TaskSettingsMenuFragment"
         android:label="fragment_task_settings_menu"
-        tools:layout="@layout/fragment_task_settings_menu" />
+        tools:layout="@layout/fragment_task_settings_menu" >
+        <argument
+            android:name="TaskList"
+            app:argType="string[]" />
+        <argument
+            android:name="Job"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_TaskSettingsMenuFragment_to_JobSettingsMenuFragment"
+            app:destination="@id/JobSettingsMenuFragment" />
+    </fragment>
     <fragment
         android:id="@+id/ActiveTasksFragment"
         android:name="com.matthew.jobtracker.navdestinations.ActiveTasksFragment"

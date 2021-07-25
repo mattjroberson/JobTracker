@@ -5,13 +5,21 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.matthew.jobtracker.DatabaseHelper
+import com.matthew.jobtracker.DialogCallback
+import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.databinding.FragmentJobSettingsMenuBinding
+import com.matthew.jobtracker.popups.NewSettingFragment
 import com.matthew.jobtracker.recyclerviews.RvAdapter
 import com.matthew.jobtracker.recyclerviews.RvItem
 
-class JobSettingsMenuFragment : Fragment() {
+class JobSettingsMenuFragment : Fragment(), DialogCallback {
+
+    private lateinit var db : DatabaseHelper
+    private lateinit var templates : MutableMap<String, MutableList<String>>
 
     private var _binding: FragmentJobSettingsMenuBinding? = null
     private val binding get() = _binding!!
@@ -21,12 +29,27 @@ class JobSettingsMenuFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        possibleJobs.add(RvItem("Job 1", "") { navToTaskSettings() })
-        possibleJobs.add(RvItem("Job 2", "") { })
-        possibleJobs.add(RvItem("Job 3", "") { })
+        db = DatabaseHelper(requireContext())
+        templates = db.getTemplates()
+
+        templates.keys.forEach{ job ->
+            possibleJobs.add(RvItem(job, "") {navToTaskSettings(job)})
+        }
+
+        binding.fab.setOnClickListener {
+            val newFragment = NewSettingFragment()
+            newFragment.setTargetFragment(this, 0)
+            newFragment.show(parentFragmentManager, "new_job_setting")
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
+            this.isEnabled = true
+            navBackToActiveJobs()
+        }
 
         connectRecyclerAdapter(view)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +58,16 @@ class JobSettingsMenuFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentJobSettingsMenuBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onDialogDismiss(response : String?){
+        if(response == null || possibleJobs.contains(response)) return
+
+        val newTemplate = JobTemplate(response)
+        db.addJobTemplate(newTemplate)
+
+        possibleJobs.add(RvItem(response, "") {navToTaskSettings(response)})
+        binding.rvPossibleJobs.adapter?.notifyDataSetChanged()
     }
 
     private fun connectRecyclerAdapter(view: View){
@@ -46,8 +79,15 @@ class JobSettingsMenuFragment : Fragment() {
         }
     }
 
-    private fun navToTaskSettings(){
-        val action = JobSettingsMenuFragmentDirections.actionSettingsMenuFragmentToTaskSettingsMenuFragment()
+    private fun navToTaskSettings(job : String){
+        val taskList = templates[job]!!.toTypedArray()
+
+        val action = JobSettingsMenuFragmentDirections.actionSettingsMenuFragmentToTaskSettingsMenuFragment(taskList, job)
+        findNavController().navigate(action)
+    }
+
+    private fun navBackToActiveJobs(){
+        val action = JobSettingsMenuFragmentDirections.actionJobSettingsMenuFragmentToActiveJobsFragment()
         findNavController().navigate(action)
     }
 
@@ -56,3 +96,4 @@ class JobSettingsMenuFragment : Fragment() {
         _binding = null
     }
 }
+
