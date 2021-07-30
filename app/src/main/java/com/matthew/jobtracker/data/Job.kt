@@ -1,20 +1,19 @@
 package com.matthew.jobtracker.data
 
+import android.text.format.DateUtils
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Job (
+data class Job (
     var name: String = "Default Name",
-    var taskList: MutableList<Task> = mutableListOf()
-){
-    fun getTotalTime() : Long{
+    var taskList: MutableMap<String, Task> = mutableMapOf()
+) {
+    val prettyTotalTime : String
+        get() = DateUtils.formatElapsedTime(getTotalTime())
+
+    private fun getTotalTime() : Long{
         var sum : Long = 0
-
-        taskList.forEach {
-            //TODO Handle active task case here
-            sum += it.endTime - it.startTime
-        }
-
+        taskList.values.forEach { sum += it.loggedTime}
         return sum
     }
 }

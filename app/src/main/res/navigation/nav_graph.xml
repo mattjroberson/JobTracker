@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/ActiveJobsFragment"
-        android:name="com.matthew.jobtracker.navdestinations.ActiveJobsFragment"
+        android:name="com.matthew.jobtracker.navdestinations.CurrentJobsFragment"
         android:label="/active_job_fragment_label"
-        tools:layout="@layout/fragment_active_jobs" >
+        tools:layout="@layout/fragment_current_jobs" >
         <action
             android:id="@+id/action_ActiveJobsFragment_to_activeTasksFragment"
             app:destination="@id/ActiveTasksFragment" />
@@ -43,8 +43,15 @@
     </fragment>
     <fragment
         android:id="@+id/ActiveTasksFragment"
-        android:name="com.matthew.jobtracker.navdestinations.ActiveTasksFragment"
+        android:name="com.matthew.jobtracker.navdestinations.CurrentTasksFragment"
         android:label="fragment_active_tasks"
-        tools:layout="@layout/fragment_active_tasks" />
+        tools:layout="@layout/fragment_current_tasks" >
+        <action
+            android:id="@+id/action_ActiveTasksFragment_to_ActiveJobsFragment"
+            app:destination="@id/ActiveJobsFragment" />
+        <argument
+            android:name="Job"
+            app:argType="string" />
+    </fragment>
 
 </navigation>

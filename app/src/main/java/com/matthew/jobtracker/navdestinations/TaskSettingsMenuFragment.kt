@@ -31,6 +31,8 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireActivity().title = "Settings: ${args.job} Tasks"
+
         db = DatabaseHelper(requireContext())
 
         args.taskList.forEach{

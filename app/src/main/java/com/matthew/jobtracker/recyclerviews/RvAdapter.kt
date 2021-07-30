@@ -7,7 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.matthew.jobtracker.R
 
 class RvAdapter(var rvItems: List<RvItem>, private var view: View) : RecyclerView.Adapter<RvAdapter.RvViewHolder>(){
-    inner class RvViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+
+    inner class RvViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvViewHolder {
         val layout = R.layout.recycler_view_item

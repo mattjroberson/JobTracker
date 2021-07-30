@@ -29,6 +29,8 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        requireActivity().title = "Settings: Jobs"
+
         db = DatabaseHelper(requireContext())
         templates = db.getTemplates()
 
@@ -61,10 +63,13 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
     }
 
     override fun onDialogDismiss(response : String?){
+        //Ignore if no new name given or name already exists
         if(response == null || possibleJobs.contains(response)) return
 
         val newTemplate = JobTemplate(response)
+
         db.addJobTemplate(newTemplate)
+        templates[response] = mutableListOf()
 
         possibleJobs.add(RvItem(response, "") {navToTaskSettings(response)})
         binding.rvPossibleJobs.adapter?.notifyDataSetChanged()
@@ -80,7 +85,7 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
     }
 
     private fun navToTaskSettings(job : String){
-        val taskList = templates[job]!!.toTypedArray()
+        val taskList = templates[job]?.toTypedArray() ?: return
 
         val action = JobSettingsMenuFragmentDirections.actionSettingsMenuFragmentToTaskSettingsMenuFragment(taskList, job)
         findNavController().navigate(action)

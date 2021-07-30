@@ -3,7 +3,6 @@ package com.matthew.jobtracker.popups
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +15,7 @@ import androidx.fragment.app.FragmentActivity
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.activities.TimerActivity
+import com.matthew.jobtracker.data.TimerParams
 import com.matthew.jobtracker.databinding.DialogNewTaskBinding
 
 //Popup for creating new tasks.
@@ -60,11 +60,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
                 .setPositiveButton(R.string.new_task_ok) { _, _ ->
                     launchTimerActivity(it)
                 }
-                .setNegativeButton(
-                    R.string.new_task_cancel,
-                    DialogInterface.OnClickListener { dialog, id ->
-                            //Delete Task
-                        })
+                .setNegativeButton(R.string.new_task_cancel) { _, _ -> }
 
             // Create the AlertDialog object
             alertDialog = builder.create()
@@ -139,10 +135,10 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
         val intent = Intent(activity, TimerActivity::class.java)
 
         val jobString = binding.spinnerDialogJob.getItemAtPosition(currentJob).toString()
-        intent.putExtra("Job", jobString)
-
         val taskString = binding.spinnerDialogTask.getItemAtPosition(currentTask).toString()
-        intent.putExtra("Task", taskString)
+
+        val timerParam = TimerParams(taskString, jobString)
+        intent.putExtra("TIMER_PARAMS", timerParam)
 
         startActivity(intent)
     }

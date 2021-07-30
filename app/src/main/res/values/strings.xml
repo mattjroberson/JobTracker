@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">JobTracker</string>
     <string name="action_settings">Settings</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
@@ -16,4 +17,15 @@
     <string name="new_setting_save">save</string>
     <string name="new_setting_discard">discard</string>
 
+    <string name="button_pause">pause</string>
+    <string name="button_resume">resume</string>
+
+    <string name="timer_back_message">Finish task to return.</string>
+    <string name="back_message">Press back again to close.</string>
+    <string name="invalid_time_format">Time must by in the format "HH:MM"</string>
+
+    <!-- Global String IDs-->
+    <string name="ACTIVE_TASK_PREF">active_task_pref</string>
+    <string name="JOB_ARG">job</string>
+    <string name="TASK_ARG">task</string>
 </resources>

@@ -27,7 +27,7 @@ class DatabaseHelper(context: Context):
 
     //region Add Data
 
-    fun addJob(job: Job) {
+    fun addCurrentJob(job: Job) {
         val serializedJob = Json.encodeToString(job)
         addSerializedDataToTable(job.name, TABLE_ACTIVE_JOBS, serializedJob)
     }
@@ -50,15 +50,33 @@ class DatabaseHelper(context: Context):
 
     //region Get Data
 
-    fun getJobs(): MutableList<Job> {
-        val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
-        val jobList = mutableListOf<Job>()
+//    fun getActiveJob(jobName : String) : Job?{
+//        val query = "SELECT '$jobName' * FROM '$TABLE_ACTIVE_JOBS'"
+//        val db = this.writableDatabase
+//        val cursor = db.rawQuery(query, null)
+//
+//        var job : Job? = null
+//
+//        if(cursor.count > 0) {
+//            val serializedJob = cursor.getString(2)
+//            job = Json.decodeFromString(serializedJob)
+//            return null
+//        }
+//
+//        cursor.close()
+//        return job
+//    }
 
-        serializedList.forEach{ data ->
-            jobList.add(Json.decodeFromString(data))
+    fun getCurrentJobs(): MutableMap<String, Job> {
+        val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
+        val jobMap = mutableMapOf<String, Job>()
+
+        serializedList.forEach { data ->
+            val job : Job = Json.decodeFromString(data)
+            jobMap[job.name] = job
         }
 
-        return jobList
+        return jobMap
     }
 
     fun getTemplates(): MutableMap<String, MutableList<String>> {
@@ -98,7 +116,6 @@ class DatabaseHelper(context: Context):
 
         val hasTable =  cursor.count != 0
 
-        //db.close()
         cursor.close()
         return hasTable
     }
@@ -122,7 +139,6 @@ class DatabaseHelper(context: Context):
                 "UNIQUE(" + COLUMN_NAME + ") ON CONFLICT REPLACE" + ")")
 
         db.execSQL(createTable)
-        //db.close()
     }
 
     companion object{

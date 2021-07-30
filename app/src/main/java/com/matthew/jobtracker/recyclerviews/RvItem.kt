@@ -3,10 +3,7 @@ package com.matthew.jobtracker.recyclerviews
 import android.view.View
 import com.matthew.jobtracker.databinding.RecyclerViewItemBinding
 
-class RvItem(val title: String, val subText: String, val actionHandler: (type: ActionType) -> Unit) {
-    companion object {
-        enum class ActionType { EDIT, DELETE }
-    }
+class RvItem(val title: String, val subText: String, val actionHandler: () -> Unit) {
 
     fun attach(itemView: View){
         itemView.apply {
@@ -15,7 +12,7 @@ class RvItem(val title: String, val subText: String, val actionHandler: (type: A
             binding.rvText.apply {
                 text = title
                 setOnClickListener {
-                    actionHandler(ActionType.EDIT)
+                    actionHandler()
                 }
             }
 

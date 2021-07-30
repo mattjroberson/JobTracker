@@ -2,6 +2,8 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id("androidx.navigation.safeargs")
+    id("kotlin-parcelize")
+
 
     //Needed for JSON Serialization
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.32'
