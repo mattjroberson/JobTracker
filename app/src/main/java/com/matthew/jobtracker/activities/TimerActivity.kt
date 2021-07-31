@@ -41,7 +41,7 @@ class TimerActivity : AppCompatActivity() {
         binding.textViewTask.text = params.taskName
 
         db = DatabaseHelper(this)
-        job = db.getCurrentJobs()[params.jobName] ?: Job(params.jobName)
+        job = db.getCurrentJob(params.jobName) ?: Job(params.jobName)
 
         updatePlayPauseButton()
 
@@ -66,11 +66,12 @@ class TimerActivity : AppCompatActivity() {
         runTimer()
     }
 
+    //TODO Add this functionality back
     private fun saveTask(){
         val timeRoundedToMins = roundSecondsToNearestMin(params.secondsElapsed)
 
         val task = Task(params.taskName, timeRoundedToMins)
-        job.taskList[params.taskName] = task
+        //job.taskList[params.taskName] = task
         db.addCurrentJob(job)
     }
 

@@ -5,7 +5,8 @@
     android:layout_height="50dp"
 
     android:background="@drawable/bg_item"
-    android:paddingHorizontal="15dp">
+    android:paddingHorizontal="15dp"
+    android:id="@+id/rv_parent_layout">
 
     <TextView
         android:id="@+id/rv_text"

@@ -22,10 +22,9 @@ import com.matthew.jobtracker.recyclerviews.RvItem
 
 class CurrentTasksFragment : Fragment(), DialogCallback {
     private lateinit var db : DatabaseHelper
+
     private var _binding: FragmentCurrentTasksBinding? = null
     private val binding get() = _binding!!
-
-    private var curTaskItems = mutableListOf<RvItem>()
 
     private val args : CurrentTasksFragmentArgs by navArgs()
 
@@ -41,19 +40,16 @@ class CurrentTasksFragment : Fragment(), DialogCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().title = "${args.job} Tasks"
-
         db = DatabaseHelper(requireContext())
-        val job = db.getCurrentJobs()[args.job]
+        val job = db.getCurrentJobs()[args.jobPosition]
+        connectRecyclerAdapter(job)
 
-        job?.taskList?.values?.forEach{ task ->
-            curTaskItems.add(RvItem(task.taskName, task.prettyTime) { showEditPopup(job, task.taskName) })
-        }
-        connectRecyclerAdapter(view)
-
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            this.isEnabled = true
-            navigateBackToCurrentJobs()
+        requireActivity().apply{
+            title = "${job.name} Tasks"
+            onBackPressedDispatcher.addCallback(this) {
+                this.isEnabled = true
+                navigateBackToCurrentJobs()
+            }
         }
     }
 
@@ -67,24 +63,20 @@ class CurrentTasksFragment : Fragment(), DialogCallback {
         //Ignore if no response given
         if(response == null) return
 
-        curTaskItems.clear()
-        //TODO Refactor this with code in onCreate
-
-        val job = db.getCurrentJobs()[args.job]
-
-        job?.taskList?.values?.forEach{ task ->
-            curTaskItems.add(RvItem(task.taskName, task.prettyTime) { showEditPopup(job, task.taskName) })
-        }
+        //TODO Add back in the add option here
+//        val job = db.getCurrentJobs()[args.job]
 
         binding.rvActiveTasks.adapter?.notifyDataSetChanged()
     }
 
-    private fun connectRecyclerAdapter(view: View){
-        val graphListAdapter = RvAdapter(curTaskItems, view)
+    private fun connectRecyclerAdapter(job : Job){
+        val graphListAdapter = RvAdapter(
+            job.taskList.map{it.taskName},
+            job.taskList.map{it.prettyTime})
 
         binding.rvActiveTasks.apply{
             adapter = graphListAdapter
-            layoutManager = LinearLayoutManager(view.context)
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 

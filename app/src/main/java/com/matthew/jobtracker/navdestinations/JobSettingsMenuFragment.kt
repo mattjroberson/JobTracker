@@ -24,19 +24,12 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
     private var _binding: FragmentJobSettingsMenuBinding? = null
     private val binding get() = _binding!!
 
-    private var possibleJobs = mutableListOf<RvItem>()
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().title = "Settings: Jobs"
 
         db = DatabaseHelper(requireContext())
         templates = db.getTemplates()
-
-        templates.keys.forEach{ job ->
-            possibleJobs.add(RvItem(job, "") {navToTaskSettings(job)})
-        }
 
         binding.fab.setOnClickListener {
             val newFragment = NewSettingFragment()
@@ -44,12 +37,15 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
             newFragment.show(parentFragmentManager, "new_job_setting")
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            this.isEnabled = true
-            navBackToActiveJobs()
+        requireActivity().apply{
+            title = "Settings: Jobs"
+            onBackPressedDispatcher.addCallback(this) {
+                this.isEnabled = true
+                navBackToActiveJobs()
+            }
         }
 
-        connectRecyclerAdapter(view)
+        connectRecyclerAdapter(templates.keys.toMutableList())
     }
 
 
@@ -64,23 +60,24 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback {
 
     override fun onDialogDismiss(response : String?){
         //Ignore if no new name given or name already exists
-        if(response == null || possibleJobs.contains(response)) return
-
-        val newTemplate = JobTemplate(response)
-
-        db.addJobTemplate(newTemplate)
-        templates[response] = mutableListOf()
-
-        possibleJobs.add(RvItem(response, "") {navToTaskSettings(response)})
-        binding.rvPossibleJobs.adapter?.notifyDataSetChanged()
+        //TODO Add functionality back in
+//        if(response == null || possibleJobs.contains(response)) return
+//
+//        val newTemplate = JobTemplate(response)
+//
+//        db.addJobTemplate(newTemplate)
+//        templates[response] = mutableListOf()
+//
+//        possibleJobs.add(RvItem(response, "") {navToTaskSettings(response)})
+//        binding.rvPossibleJobs.adapter?.notifyDataSetChanged()
     }
 
-    private fun connectRecyclerAdapter(view: View){
-        val graphListAdapter = RvAdapter(possibleJobs, view)
+    private fun connectRecyclerAdapter(jobs : MutableList<String>){
+        val graphListAdapter = RvAdapter(jobs, jobs)
 
         binding.rvPossibleJobs.apply{
             adapter = graphListAdapter
-            layoutManager = LinearLayoutManager(view.context)
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 

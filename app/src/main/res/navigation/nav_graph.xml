@@ -50,8 +50,8 @@
             android:id="@+id/action_ActiveTasksFragment_to_ActiveJobsFragment"
             app:destination="@id/ActiveJobsFragment" />
         <argument
-            android:name="Job"
-            app:argType="string" />
+            android:name="Job_Position"
+            app:argType="integer" />
     </fragment>
 
 </navigation>

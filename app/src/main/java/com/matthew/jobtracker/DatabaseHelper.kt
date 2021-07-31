@@ -67,16 +67,29 @@ class DatabaseHelper(context: Context):
 //        return job
 //    }
 
-    fun getCurrentJobs(): MutableMap<String, Job> {
+    fun getCurrentJobs(): MutableList<Job> {
         val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
-        val jobMap = mutableMapOf<String, Job>()
+        val jobList = mutableListOf<Job>()
 
         serializedList.forEach { data ->
             val job : Job = Json.decodeFromString(data)
-            jobMap[job.name] = job
+            jobList.add(job)
         }
 
-        return jobMap
+        return jobList
+    }
+
+    //TODO Refactor to make more efficient than getting all jobs at once
+    fun getCurrentJob(jobName: String) : Job?{
+        val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
+        val jobList = mutableListOf<Job>()
+
+        serializedList.forEach { data ->
+            val job : Job = Json.decodeFromString(data)
+            if(job.name == jobName) return job
+        }
+
+        return null
     }
 
     fun getTemplates(): MutableMap<String, MutableList<String>> {

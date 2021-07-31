@@ -27,7 +27,6 @@ class CurrentJobsFragment : Fragment() {
     private var _binding: FragmentCurrentJobsBinding? = null
     private val binding get() = _binding!!
 
-    private var curJobItems = mutableListOf<RvItem>()
     private var backBtnPressed = false
 
     override fun onCreateView(
@@ -42,32 +41,28 @@ class CurrentJobsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requireActivity().title = "Job Tracker"
-
         val db = DatabaseHelper(requireContext())
         val jobs = db.getCurrentJobs()
-
-        jobs.values.forEach{ job ->
-            curJobItems.add(RvItem(job.name, job.prettyTotalTime) { navigateToActiveTasks(job.name) })
-        }
+        connectRecyclerAdapter(jobs)
 
         binding.fab.setOnClickListener {
             val newFragment = NewTaskFragment()
             newFragment.show(parentFragmentManager, "new_task")
         }
 
-        connectRecyclerAdapter(view)
+        requireActivity().apply{
+            title = "Job Tracker"
 
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            this.isEnabled = true
-
-            if(backBtnPressed) navigateOutOfApp()
-            else notifyBackPressed()
+            onBackPressedDispatcher.addCallback(this) {
+                this.isEnabled = true
+                if(backBtnPressed) navigateOutOfApp()
+                else notifyBackPressed()
+            }
         }
     }
 
-    private fun navigateToActiveTasks(jobName : String){
-        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(jobName)
+    private fun navigateToActiveTasks(jobPosition : Int){
+        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(jobPosition)
         findNavController().navigate(action)
     }
 
@@ -84,15 +79,15 @@ class CurrentJobsFragment : Fragment() {
         Toast.makeText(requireContext(), resources.getString(R.string.back_message), Toast.LENGTH_SHORT).show();
     }
 
-    private fun connectRecyclerAdapter(view: View){
-        val graphListAdapter = RvAdapter(curJobItems, view)
+    private fun connectRecyclerAdapter(jobs: MutableList<Job>){
+        val graphListAdapter = RvAdapter(jobs.map{it.name}, jobs.map{it.prettyTotalTime})
 
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT){
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder): Boolean {return true}
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                curJobItems.removeAt(viewHolder.adapterPosition)
+                jobs.removeAt(viewHolder.adapterPosition)
                 graphListAdapter.notifyDataSetChanged()
             }
 
@@ -101,7 +96,7 @@ class CurrentJobsFragment : Fragment() {
         binding.rvActiveJobs.apply{
             adapter = graphListAdapter
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
-            layoutManager = LinearLayoutManager(view.context)
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 

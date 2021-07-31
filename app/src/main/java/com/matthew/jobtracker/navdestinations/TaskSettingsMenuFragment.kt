@@ -30,14 +30,8 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        requireActivity().title = "Settings: ${args.job} Tasks"
-
         db = DatabaseHelper(requireContext())
 
-        args.taskList.forEach{
-            possibleTasks.add(RvItem(it, "") {})
-        }
 
         binding.fab.setOnClickListener {
             val newFragment = NewSettingFragment()
@@ -45,11 +39,15 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
             newFragment.show(parentFragmentManager, "new_task_setting")
         }
 
-        connectRecyclerAdapter(view)
+        connectRecyclerAdapter(args.taskList.toMutableList())
 
-        requireActivity().onBackPressedDispatcher.addCallback(this) {
-            this.isEnabled = true
-            navigateBackToJobSettings()
+        requireActivity().apply{
+            title = "Settings: ${args.job} Tasks"
+
+            onBackPressedDispatcher.addCallback(this) {
+                this.isEnabled = true
+                navigateBackToJobSettings()
+            }
         }
     }
 
@@ -62,12 +60,12 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
         return binding.root
     }
 
-    private fun connectRecyclerAdapter(view: View){
-        val graphListAdapter = RvAdapter(possibleTasks, view)
+    private fun connectRecyclerAdapter(tasks : MutableList<String>){
+        val graphListAdapter = RvAdapter(tasks, tasks)
 
         binding.rvPossibleTasks.apply{
             adapter = graphListAdapter
-            layoutManager = LinearLayoutManager(view.context)
+            layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
