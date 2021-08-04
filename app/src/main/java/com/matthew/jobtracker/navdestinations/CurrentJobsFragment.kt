@@ -3,6 +3,7 @@ package com.matthew.jobtracker.navdestinations
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,24 +16,24 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.R
-import com.matthew.jobtracker.data.Job
-import com.matthew.jobtracker.data.Task
+import com.matthew.jobtracker.data.rv_items.CurrentJobItemData
 import com.matthew.jobtracker.databinding.FragmentCurrentJobsBinding
 import com.matthew.jobtracker.popups.NewTaskFragment
 import com.matthew.jobtracker.recyclerviews.RvAdapter
-import com.matthew.jobtracker.recyclerviews.RvItem
 
-
-class CurrentJobsFragment : Fragment() {
+class CurrentJobsFragment : Fragment(), RvAdapter.OnItemListener {
     private var _binding: FragmentCurrentJobsBinding? = null
     private val binding get() = _binding!!
 
     private var backBtnPressed = false
 
+    private lateinit var db : DatabaseHelper
+    private lateinit var itemList : MutableList<CurrentJobItemData>
+
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentCurrentJobsBinding.inflate(inflater, container, false)
         return binding.root
@@ -41,9 +42,10 @@ class CurrentJobsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val db = DatabaseHelper(requireContext())
-        val jobs = db.getCurrentJobs()
-        connectRecyclerAdapter(jobs)
+        db = DatabaseHelper(requireContext())
+        itemList = db.getCurrentJobs().map{CurrentJobItemData(it)} as MutableList<CurrentJobItemData>
+
+        connectRecyclerAdapter()
 
         binding.fab.setOnClickListener {
             val newFragment = NewTaskFragment()
@@ -61,8 +63,9 @@ class CurrentJobsFragment : Fragment() {
         }
     }
 
-    private fun navigateToActiveTasks(jobPosition : Int){
-        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(jobPosition)
+    override fun onItemClick(position: Int) {
+        val name = itemList[position].job.name
+        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(name)
         findNavController().navigate(action)
     }
 
@@ -76,21 +79,20 @@ class CurrentJobsFragment : Fragment() {
     private fun notifyBackPressed(){
         backBtnPressed = true
         Handler().postDelayed({ backBtnPressed = false }, 2000)
-        Toast.makeText(requireContext(), resources.getString(R.string.back_message), Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), resources.getString(R.string.back_message), Toast.LENGTH_SHORT).show()
     }
 
-    private fun connectRecyclerAdapter(jobs: MutableList<Job>){
-        val graphListAdapter = RvAdapter(jobs.map{it.name}, jobs.map{it.prettyTotalTime})
+    private fun connectRecyclerAdapter(){
+        val graphListAdapter = RvAdapter(itemList, this)
 
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT){
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder): Boolean {return true}
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                jobs.removeAt(viewHolder.adapterPosition)
+                deleteJob(viewHolder.adapterPosition)
                 graphListAdapter.notifyDataSetChanged()
             }
-
         }
 
         binding.rvActiveJobs.apply{
@@ -100,8 +102,16 @@ class CurrentJobsFragment : Fragment() {
         }
     }
 
+    private fun deleteJob(position : Int){
+        val oldItem = itemList[position]
+        db.deleteCurrentJob(oldItem.job.name)
+        itemList.remove(oldItem)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
     }
+
+
 }

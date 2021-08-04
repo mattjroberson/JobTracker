@@ -9,24 +9,26 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.DialogCallback
-import com.matthew.jobtracker.data.Job
-import com.matthew.jobtracker.data.JobTemplate
-import com.matthew.jobtracker.data.Task
+import com.matthew.jobtracker.data.rv_items.CurrentTaskItemData
 import com.matthew.jobtracker.databinding.FragmentCurrentTasksBinding
 import com.matthew.jobtracker.popups.EditTaskFragment
 import com.matthew.jobtracker.recyclerviews.RvAdapter
-import com.matthew.jobtracker.recyclerviews.RvItem
 
-class CurrentTasksFragment : Fragment(), DialogCallback {
+class CurrentTasksFragment : Fragment(), DialogCallback, RvAdapter.OnItemListener{
     private lateinit var db : DatabaseHelper
+    private lateinit var itemList : MutableList<CurrentTaskItemData>
+    private lateinit var jobName : String
 
     private var _binding: FragmentCurrentTasksBinding? = null
     private val binding get() = _binding!!
 
     private val args : CurrentTasksFragmentArgs by navArgs()
+    private var editingPosition : Int = 0
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -40,12 +42,19 @@ class CurrentTasksFragment : Fragment(), DialogCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        Log.i("TEST", "Hello")
+
         db = DatabaseHelper(requireContext())
-        val job = db.getCurrentJobs()[args.jobPosition]
-        connectRecyclerAdapter(job)
+        jobName = args.jobName
+
+        val job = db.getCurrentJob(jobName)
+
+        itemList = job?.taskList?.map{CurrentTaskItemData(it)} as MutableList<CurrentTaskItemData>
+
+        connectRecyclerAdapter()
 
         requireActivity().apply{
-            title = "${job.name} Tasks"
+            title = "${job?.name} Tasks"
             onBackPressedDispatcher.addCallback(this) {
                 this.isEnabled = true
                 navigateBackToCurrentJobs()
@@ -53,8 +62,11 @@ class CurrentTasksFragment : Fragment(), DialogCallback {
         }
     }
 
-    private fun showEditPopup(job : Job, taskName : String){
-        val newFragment = EditTaskFragment(job, taskName)
+    override fun onItemClick(position: Int) {
+        val task = itemList[position].task
+        editingPosition = position
+
+        val newFragment = EditTaskFragment.newInstance(task.name, task.prettyTime)
         newFragment.setTargetFragment(this, 0)
         newFragment.show(parentFragmentManager,"edit task")
     }
@@ -63,23 +75,43 @@ class CurrentTasksFragment : Fragment(), DialogCallback {
         //Ignore if no response given
         if(response == null) return
 
-        //TODO Add back in the add option here
-//        val job = db.getCurrentJobs()[args.job]
-
+        editTaskTimeAtPos(response, editingPosition)
         binding.rvActiveTasks.adapter?.notifyDataSetChanged()
     }
 
-    private fun connectRecyclerAdapter(job : Job){
-        val graphListAdapter = RvAdapter(
-            job.taskList.map{it.taskName},
-            job.taskList.map{it.prettyTime})
+    private fun connectRecyclerAdapter(){
+        val graphListAdapter = RvAdapter(itemList, this)
+
+        val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT){
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                                target: RecyclerView.ViewHolder): Boolean {return true}
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                removeTaskAtPos(viewHolder.adapterPosition)
+                graphListAdapter.notifyDataSetChanged()
+            }
+        }
 
         binding.rvActiveTasks.apply{
             adapter = graphListAdapter
+            ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
             layoutManager = LinearLayoutManager(requireContext())
         }
     }
 
+    private fun removeTaskAtPos(position: Int){
+        val job = db.getCurrentJob(jobName) ?: return
+        job.taskList.removeAt(position)
+        db.addCurrentJob(job)
+        itemList.removeAt(position)
+    }
+
+    private fun editTaskTimeAtPos(newTime : String, position: Int){
+        val job = db.getCurrentJob(jobName) ?: return
+        job.taskList[position].loggedTime = newTime.toLong()
+        itemList[position] = CurrentTaskItemData(job.taskList[position])
+        db.addCurrentJob(job)
+    }
     private fun navigateBackToCurrentJobs(){
         val action = CurrentTasksFragmentDirections.actionActiveTasksFragmentToActiveJobsFragment()
         findNavController().navigate(action)

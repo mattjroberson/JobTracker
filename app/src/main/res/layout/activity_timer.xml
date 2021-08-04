@@ -16,12 +16,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:theme="@style/Widget.App.TimerTextView"
             android:id="@+id/textView_job"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:text="Job"
-            android:textSize="36sp"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/textView_task"
@@ -29,12 +27,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
+            android:theme="@style/Widget.App.TimerTextView"
             android:id="@+id/textView_task"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:text="Task"
-            android:textSize="36sp"
 
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -48,8 +44,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:text="03:34"
+        android:text="00:00"
         android:textSize="100sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorPrimaryVariant"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,6 +60,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_pause"
+        android:textSize="30sp"
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,6 +74,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="finish"
+        android:textSize="30sp"
 
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

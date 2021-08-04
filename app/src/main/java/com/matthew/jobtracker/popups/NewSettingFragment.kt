@@ -39,7 +39,6 @@ class NewSettingFragment() : DialogFragment() {
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-
     private fun notifyFragment(name : String?){
         val callback = targetFragment as? DialogCallback
         callback?.onDialogDismiss(name)

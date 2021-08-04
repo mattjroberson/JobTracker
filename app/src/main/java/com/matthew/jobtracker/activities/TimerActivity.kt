@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.text.format.DateUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -69,9 +70,9 @@ class TimerActivity : AppCompatActivity() {
     //TODO Add this functionality back
     private fun saveTask(){
         val timeRoundedToMins = roundSecondsToNearestMin(params.secondsElapsed)
+        val task = Task(params.taskName, job.name, timeRoundedToMins)
 
-        val task = Task(params.taskName, timeRoundedToMins)
-        //job.taskList[params.taskName] = task
+        job.taskList.add(task)
         db.addCurrentJob(job)
     }
 

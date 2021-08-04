@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentActivity
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.activities.TimerActivity
+import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.data.TimerParams
 import com.matthew.jobtracker.databinding.DialogNewTaskBinding
 
@@ -32,7 +33,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     private val binding get() = _binding!!
 
     private lateinit var alertDialog : AlertDialog
-    private lateinit var templateMap : MutableMap<String, MutableList<String>>
+    private lateinit var templateList : MutableList<JobTemplate>
     private var currentJob = 0
     private var currentTask = 0
 
@@ -45,16 +46,16 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
 
             //Retrieve job templates from database
             val db = DatabaseHelper(requireContext())
-            templateMap = db.getTemplates()
+            templateList = db.getTemplates()
 
             val jobStrings = mutableListOf(SELECT_JOB)
-            jobStrings.addAll(templateMap.keys)
+            jobStrings.addAll(templateList.map{template -> template.name})
 
             val taskStrings = mutableListOf(SELECT_TASK)
 
             //Populate the spinners with correct data
-            attachSpinner(binding.spinnerDialogJob, it.applicationContext, jobStrings)
-            attachSpinner(binding.spinnerDialogTask, it.applicationContext, taskStrings)
+            attachSpinner(binding.spinnerDialogJob, it, jobStrings)
+            attachSpinner(binding.spinnerDialogTask, it, taskStrings)
 
             builder.setView(binding.root)
                 .setPositiveButton(R.string.new_task_ok) { _, _ ->
@@ -78,7 +79,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     private fun attachSpinner(spinner : Spinner, context : Context, items : MutableList<String>){
         ArrayAdapter(
                 context,
-                android.R.layout.simple_spinner_item,
+                R.layout.spinner_layout,
                 items
         ).also { adapter ->
             spinner.adapter = adapter
@@ -87,16 +88,16 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     }
 
     //Set the correct task list based on the selected job type
-    private fun updateTaskSpinner(context : Context, jobString : String){
+    private fun updateTaskSpinner(context : Context, itemPos : Int){
         val taskStrings = mutableListOf(SELECT_TASK)
 
-        if(jobString != SELECT_JOB) {
-            taskStrings.addAll(templateMap[jobString]!!)
+        if(itemPos != 0) {
+            taskStrings.addAll(templateList[itemPos-1].taskTemplates)
         }
 
         ArrayAdapter(
             context,
-            android.R.layout.simple_spinner_item,
+            R.layout.spinner_layout,
             taskStrings
         ).also {
             binding.spinnerDialogTask.adapter = it
@@ -109,8 +110,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
 
         //TODO Likely to be a bug here with update orders
         if(parent.id == R.id.spinner_dialog_job){
-            Log.i("TEST", parent.getItemAtPosition(p2).toString())
-            updateTaskSpinner(requireContext(), parent.getItemAtPosition(p2).toString())
+            updateTaskSpinner(requireContext(), p2)
         }
     }
 

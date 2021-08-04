@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
@@ -10,16 +11,18 @@
         android:layout_height="wrap_content"
         android:textSize="20sp"
         android:text="Name"
-        android:gravity="center_horizontal" />
+        android:gravity="center_horizontal"
+        tools:ignore="HardcodedText"/>
 
     <EditText
         android:id="@+id/editText_new_time"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
         android:textSize="20sp"
         android:ems="10"
         android:inputType="time"
-        android:text="3:30"
-        android:gravity="center_horizontal"/>
+        android:text="00:00"
+        android:gravity="center_horizontal"
+        tools:ignore="HardcodedText"/>
 </LinearLayout>

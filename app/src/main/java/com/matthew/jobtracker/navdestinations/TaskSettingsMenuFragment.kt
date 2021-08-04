@@ -6,18 +6,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.DialogCallback
+import com.matthew.jobtracker.data.rv_items.ItemData
 import com.matthew.jobtracker.data.JobTemplate
+import com.matthew.jobtracker.data.rv_items.TaskSettingItemData
 import com.matthew.jobtracker.databinding.FragmentTaskSettingsMenuBinding
 import com.matthew.jobtracker.popups.NewSettingFragment
 import com.matthew.jobtracker.recyclerviews.RvAdapter
-import com.matthew.jobtracker.recyclerviews.RvItem
-import javax.xml.transform.Templates
 
 class TaskSettingsMenuFragment : Fragment(), DialogCallback {
 
@@ -26,12 +27,14 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
     private val binding get() = _binding!!
     private val args : TaskSettingsMenuFragmentArgs by navArgs()
 
-    private var possibleTasks = mutableListOf<RvItem>()
+    private lateinit var taskItems : MutableList<TaskSettingItemData>
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         db = DatabaseHelper(requireContext())
 
+        val possibleTasks = args.taskList.toMutableList()
+        taskItems = possibleTasks.map{ TaskSettingItemData(it) } as MutableList<TaskSettingItemData>
 
         binding.fab.setOnClickListener {
             val newFragment = NewSettingFragment()
@@ -39,10 +42,10 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
             newFragment.show(parentFragmentManager, "new_task_setting")
         }
 
-        connectRecyclerAdapter(args.taskList.toMutableList())
+        connectRecyclerAdapter()
 
         requireActivity().apply{
-            title = "Settings: ${args.job} Tasks"
+            title = "${args.job}: Task Settings"
 
             onBackPressedDispatcher.addCallback(this) {
                 this.isEnabled = true
@@ -54,17 +57,28 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         _binding = FragmentTaskSettingsMenuBinding.inflate(inflater, container, false)
         return binding.root
     }
 
-    private fun connectRecyclerAdapter(tasks : MutableList<String>){
-        val graphListAdapter = RvAdapter(tasks, tasks)
+    private fun connectRecyclerAdapter(){
+        val graphListAdapter = RvAdapter(taskItems, null)
+
+        val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT){
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
+                                target: RecyclerView.ViewHolder): Boolean {return true}
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                removeTaskAtPos(viewHolder.adapterPosition)
+                graphListAdapter.notifyDataSetChanged()
+            }
+        }
 
         binding.rvPossibleTasks.apply{
             adapter = graphListAdapter
+            ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
             layoutManager = LinearLayoutManager(requireContext())
         }
     }
@@ -74,22 +88,26 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
         findNavController().navigate(action)
     }
 
+    private fun removeTaskAtPos(position : Int){
+        taskItems.removeAt(position)
+
+        val template = JobTemplate(args.job, taskItems.map{it.text} as MutableList<String>)
+        db.addJobTemplate(template)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
     }
 
     override fun onDialogDismiss(response : String?){
-        if(response == null || possibleTasks.contains(response)) return
+        if(response == null || taskItems.map{it.text}.contains(response)) return
 
+        taskItems.add(TaskSettingItemData(response))
 
-        val taskList = possibleTasks.map { it -> it.title}.toMutableList()
-        taskList.add(response)
-
-        val template = JobTemplate(args.job,taskList)
+        val template = JobTemplate(args.job, taskItems.map{it.text} as MutableList<String>)
         db.addJobTemplate(template)
 
-        possibleTasks.add(RvItem(response, "") {})
         binding.rvPossibleTasks.adapter?.notifyDataSetChanged()
     }
 }

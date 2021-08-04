@@ -2,38 +2,50 @@ package com.matthew.jobtracker.popups
 
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.widget.Toast
-
 import androidx.fragment.app.DialogFragment
-import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.DialogCallback
 import com.matthew.jobtracker.R
-import com.matthew.jobtracker.data.Job
-import com.matthew.jobtracker.data.Task
 import com.matthew.jobtracker.databinding.DialogEditTaskBinding
-import com.matthew.jobtracker.databinding.DialogNewSettingBinding
+
 
 //Popup for creating new tasks.
 //Call from the fab button.
 
-class EditTaskFragment(val job : Job, val taskName : String) : DialogFragment() {
+class EditTaskFragment : DialogFragment() {
+
+    private lateinit var taskName : String
+    private lateinit var prettyTime : String
 
     private var _binding: DialogEditTaskBinding? = null
     private val binding get() = _binding!!
 
-    private val MAX_HOURS = 10
+    companion object{
+        const val TASK_NAME = "task_name"
+        const val PRETTY_TIME = "pretty_time"
+        const val MAX_HOURS = 10
+
+        fun newInstance(taskName: String, prettyTime: String) : EditTaskFragment{
+            val frag = EditTaskFragment()
+            val args = Bundle()
+            args.putString(TASK_NAME, taskName)
+            args.putString(PRETTY_TIME, prettyTime)
+            frag.arguments = args
+            return frag
+        }
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        readBundle(arguments)
+
         return activity?.let{
             val builder = AlertDialog.Builder(it)
-
             val inflater = it.layoutInflater
-            _binding = DialogEditTaskBinding.inflate(inflater)
 
+            _binding = DialogEditTaskBinding.inflate(inflater)
             binding.textViewTaskName.text = taskName
-            binding.editTextNewTime.setText(job.taskList[taskName]?.prettyTime)
+            binding.editTextNewTime.setText(prettyTime)
 
             builder.setView(binding.root)
                 .setPositiveButton(R.string.new_setting_save) { _, _ ->
@@ -48,7 +60,12 @@ class EditTaskFragment(val job : Job, val taskName : String) : DialogFragment() 
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
-    private fun isInputValid(input : String) : Boolean{
+    private fun readBundle(bundle: Bundle?) {
+        taskName = bundle?.getString(TASK_NAME) ?: "NOT FOUND"
+        prettyTime = bundle?.getString(PRETTY_TIME) ?: "00:00"
+    }
+
+    private fun isInputValid(input: String) : Boolean{
         var valid = true
         val inputParts = input.split(":")
 
@@ -64,9 +81,11 @@ class EditTaskFragment(val job : Job, val taskName : String) : DialogFragment() 
         }
 
         if(!valid){
-            Toast.makeText(requireContext(),
+            Toast.makeText(
+                requireContext(),
                 resources.getString(R.string.invalid_time_format),
-                Toast.LENGTH_SHORT).show();
+                Toast.LENGTH_SHORT
+            ).show()
         }
         return valid
     }
@@ -82,14 +101,8 @@ class EditTaskFragment(val job : Job, val taskName : String) : DialogFragment() 
     }
 
     private fun saveData(prettyTime: String){
-        val db = DatabaseHelper(requireContext())
-
         val newMinutes = convertPrettyTimeToMinutes(prettyTime) ?: return
-
-        job.taskList[taskName]?.loggedTime = newMinutes
-        db.addCurrentJob(job)
-
-        notifyFragment(prettyTime)
+        notifyFragment(newMinutes.toString())
     }
 
     private fun notifyFragment(prettyTime: String){

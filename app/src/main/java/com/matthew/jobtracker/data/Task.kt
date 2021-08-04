@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Task (
-    var taskName: String = "Default Name",
+    var name: String,
+    var parentJob: String,
     var loggedTime: Long,
 ){
     val prettyTime : String

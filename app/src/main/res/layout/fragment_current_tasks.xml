@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".navdestinations.CurrentTasksFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_active_tasks"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:paddingTop="2dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,7 +2,6 @@ package com.matthew.jobtracker
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.matthew.jobtracker.data.Job
@@ -50,22 +49,15 @@ class DatabaseHelper(context: Context):
 
     //region Get Data
 
-//    fun getActiveJob(jobName : String) : Job?{
-//        val query = "SELECT '$jobName' * FROM '$TABLE_ACTIVE_JOBS'"
-//        val db = this.writableDatabase
-//        val cursor = db.rawQuery(query, null)
-//
-//        var job : Job? = null
-//
-//        if(cursor.count > 0) {
-//            val serializedJob = cursor.getString(2)
-//            job = Json.decodeFromString(serializedJob)
-//            return null
-//        }
-//
-//        cursor.close()
-//        return job
-//    }
+    fun getCurrentJob(jobName: String) : Job?{
+        val jobs = getCurrentJobs()
+
+        jobs.forEach{
+            if(it.name == jobName) return it
+        }
+
+        return null
+    }
 
     fun getCurrentJobs(): MutableList<Job> {
         val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
@@ -79,29 +71,16 @@ class DatabaseHelper(context: Context):
         return jobList
     }
 
-    //TODO Refactor to make more efficient than getting all jobs at once
-    fun getCurrentJob(jobName: String) : Job?{
-        val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
-        val jobList = mutableListOf<Job>()
-
-        serializedList.forEach { data ->
-            val job : Job = Json.decodeFromString(data)
-            if(job.name == jobName) return job
-        }
-
-        return null
-    }
-
-    fun getTemplates(): MutableMap<String, MutableList<String>> {
+    fun getTemplates(): MutableList<JobTemplate> {
         val serializedList = getSerializedListFromTable(TABLE_TEMPLATE_JOBS)
-        val templateMap = mutableMapOf<String, MutableList<String>>()
+        val templateList = mutableListOf<JobTemplate>()
 
         serializedList.forEach { data ->
             val jobTemplate : JobTemplate = Json.decodeFromString(data)
-            templateMap[jobTemplate.name] = jobTemplate.taskTemplates
+            templateList.add(jobTemplate)
         }
 
-        return templateMap
+        return templateList
     }
 
     private fun getSerializedListFromTable(table: String): MutableList<String> {
@@ -119,30 +98,18 @@ class DatabaseHelper(context: Context):
         return serializedList
     }
 
+    fun deleteCurrentJob(name : String){ delete(TABLE_ACTIVE_JOBS, name)}
+
+    fun deleteJobTemplate(name : String){ delete(TABLE_TEMPLATE_JOBS, name)}
+
+    private fun delete(table : String, name : String){
+        val db = this.writableDatabase
+        val whereClause = "name=?"
+        val whereArgs =  arrayOf(name)
+        db.delete(table, whereClause, whereArgs)
+    }
+
     //endregion
-
-    private fun hasTable(tableName: String): Boolean{
-        val db = this.writableDatabase
-        val cursor: Cursor = db.rawQuery(
-                ("select DISTINCT tbl_name from sqlite_master where tbl_name = '"
-                        + tableName) + "'", null)
-
-        val hasTable =  cursor.count != 0
-
-        cursor.close()
-        return hasTable
-    }
-
-    fun clearTable(tableName: String){
-        val db = this.writableDatabase
-        db.execSQL("DELETE FROM '$tableName'")
-    }
-
-    private fun ensureTableCreated(tableName: String){
-        if(!hasTable(tableName)){
-            createTable(this.writableDatabase, tableName)
-        }
-    }
 
     private fun createTable(db: SQLiteDatabase, tableName: String){
         val createTable = ("CREATE TABLE '" + tableName + "'(" +
