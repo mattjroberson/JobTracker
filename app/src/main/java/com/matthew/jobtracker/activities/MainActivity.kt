@@ -4,24 +4,23 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import com.matthew.jobtracker.popups.NewTaskFragment
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.data.TimerParams
 import com.matthew.jobtracker.databinding.ActivityMainBinding
-import com.matthew.jobtracker.popups.NewSettingFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
+    private var args : Bundle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        args = intent.extras
 
         val binding = ActivityMainBinding.inflate(layoutInflater)
 
@@ -37,6 +36,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkForActiveTimer(){
+        //Don't check if coming back from finished TimerActivity
+        val isTaskFinished = args?.getBoolean(ArgConsts.TIMER_FINISHED) ?: false
+        if(isTaskFinished) return
+
         val sharedPref = getSharedPreferences(ArgConsts.PREF_FILE_NAME, Context.MODE_PRIVATE) ?: return
         val isTaskActive = sharedPref.getBoolean(ArgConsts.PREF_TASK_IS_ACTIVE, false)
 
@@ -44,7 +47,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, TimerActivity::class.java)
             val timerParams = loadTimerParams(sharedPref)
 
-            intent.putExtra("TIMER_PARAMS", timerParams)
+            intent.putExtra(ArgConsts.TIMER_PARAMS, timerParams)
             startActivity(intent)
         }
     }
@@ -60,15 +63,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> {
                 navController.navigate(R.id.JobSettingsMenuFragment)
@@ -80,6 +79,9 @@ class MainActivity : AppCompatActivity() {
 }
 
 object ArgConsts{
+    const val TIMER_FINISHED = "timer_finished"
+    const val TIMER_PARAMS = "timer_params"
+
     const val PREF_FILE_NAME = "com.matthew.jobtracker.prefs"
 
     const val PREF_TASK_IS_ACTIVE = "is_active"

@@ -2,11 +2,9 @@ package com.matthew.jobtracker.activities
 
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.text.format.DateUtils
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -30,7 +28,7 @@ class TimerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val args = intent.extras
-        params = args?.getParcelable("TIMER_PARAMS") ?: return
+        params = args?.getParcelable(ArgConsts.TIMER_PARAMS) ?: return
 
         if(!params.paused && params.secondsElapsed > 0) calculateTimeElapsed()
 
@@ -56,18 +54,18 @@ class TimerActivity : AppCompatActivity() {
             saveTask()
 
             val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra(ArgConsts.TIMER_FINISHED, true)
             startActivity(intent)
         }
 
         onBackPressedDispatcher.addCallback(this) {
             this.isEnabled = true
-            Toast.makeText(applicationContext, resources.getString(R.string.timer_back_message), Toast.LENGTH_SHORT).show();
+            Toast.makeText(applicationContext, resources.getString(R.string.timer_back_message), Toast.LENGTH_SHORT).show()
         }
 
         runTimer()
     }
 
-    //TODO Add this functionality back
     private fun saveTask(){
         val timeRoundedToMins = roundSecondsToNearestMin(params.secondsElapsed)
         val task = Task(params.taskName, job.name, timeRoundedToMins)
@@ -96,8 +94,7 @@ class TimerActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        val sharedPref = getSharedPreferences(ArgConsts.PREF_FILE_NAME, Context.MODE_PRIVATE) ?: return
-        if(finished) clearState(sharedPref) else saveState(sharedPref)
+        if(!finished) saveState()
     }
 
     //https://github.com/Aashrut/Android-Stopwatch-App
@@ -116,14 +113,9 @@ class TimerActivity : AppCompatActivity() {
         })
     }
 
-    private fun clearState(sharedPref: SharedPreferences){
-        with (sharedPref.edit()) {
-            putBoolean(ArgConsts.PREF_TASK_IS_ACTIVE, false)
-            apply()
-        }
-    }
+    private fun saveState(){
+        val sharedPref = getSharedPreferences(ArgConsts.PREF_FILE_NAME, Context.MODE_PRIVATE) ?: return
 
-    private fun saveState(sharedPref : SharedPreferences){
         with (sharedPref.edit()) {
             putBoolean(ArgConsts.PREF_TASK_IS_ACTIVE, true)
 
