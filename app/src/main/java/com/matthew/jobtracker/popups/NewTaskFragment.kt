@@ -14,6 +14,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.R
+import com.matthew.jobtracker.activities.ArgConsts
 import com.matthew.jobtracker.activities.TimerActivity
 import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.data.TimerParams
@@ -138,7 +139,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
         val taskString = binding.spinnerDialogTask.getItemAtPosition(currentTask).toString()
 
         val timerParam = TimerParams(taskString, jobString)
-        intent.putExtra("TIMER_PARAMS", timerParam)
+        intent.putExtra(ArgConsts.TIMER_PARAMS, timerParam)
 
         startActivity(intent)
     }
