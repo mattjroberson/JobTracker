@@ -63,7 +63,6 @@ class JobSettingsMenuFragment : Fragment(), DialogCallback, RvAdapter.OnItemList
 
     override fun onDialogDismiss(response : String?){
         //Ignore if no new name given or name already exists
-        //TODO Add functionality back in
         if(response == null || jobItems.map{it.text}.contains(response)) return
 
         val newTemplate = JobTemplate(response)

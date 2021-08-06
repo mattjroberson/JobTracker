@@ -5,7 +5,6 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -109,7 +108,6 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, p1: View?, p2: Int, p3: Long) {
         handleValidInput(parent.id, p2)
 
-        //TODO Likely to be a bug here with update orders
         if(parent.id == R.id.spinner_dialog_job){
             updateTaskSpinner(requireContext(), p2)
         }

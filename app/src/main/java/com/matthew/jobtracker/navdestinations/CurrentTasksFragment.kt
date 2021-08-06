@@ -54,7 +54,7 @@ class CurrentTasksFragment : Fragment(), DialogCallback, RvAdapter.OnItemListene
         connectRecyclerAdapter()
 
         requireActivity().apply{
-            title = "${job?.name} Tasks"
+            title = "${job.name} Tasks"
             onBackPressedDispatcher.addCallback(this) {
                 this.isEnabled = true
                 navigateBackToCurrentJobs()

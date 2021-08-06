@@ -2,7 +2,9 @@ package com.matthew.jobtracker.data
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Parcelize
 data class TimerParams (
     var taskName : String = "Task",

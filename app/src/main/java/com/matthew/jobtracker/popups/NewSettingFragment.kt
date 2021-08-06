@@ -12,7 +12,7 @@ import com.matthew.jobtracker.databinding.DialogNewSettingBinding
 //Popup for creating new tasks.
 //Call from the fab button.
 
-class NewSettingFragment() : DialogFragment() {
+class NewSettingFragment : DialogFragment() {
 
     private var _binding: DialogNewSettingBinding? = null
     private val binding get() = _binding!!

@@ -88,7 +88,7 @@ class DatabaseHelper(context: Context):
         val db = this.writableDatabase
         val cursor = db.rawQuery(query, null)
 
-        var serializedList = mutableListOf<String>()
+        val serializedList = mutableListOf<String>()
 
         while(cursor.moveToNext()){
            serializedList.add(cursor.getString(2))

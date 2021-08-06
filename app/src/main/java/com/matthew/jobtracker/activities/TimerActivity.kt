@@ -10,6 +10,7 @@ import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import com.matthew.jobtracker.DatabaseHelper
 import com.matthew.jobtracker.R
+import com.matthew.jobtracker.helpers.SharedPrefsHelper
 import com.matthew.jobtracker.data.Job
 import com.matthew.jobtracker.data.Task
 import com.matthew.jobtracker.data.TimerParams
@@ -114,18 +115,7 @@ class TimerActivity : AppCompatActivity() {
     }
 
     private fun saveState(){
-        val sharedPref = getSharedPreferences(ArgConsts.PREF_FILE_NAME, Context.MODE_PRIVATE) ?: return
-
-        with (sharedPref.edit()) {
-            putBoolean(ArgConsts.PREF_TASK_IS_ACTIVE, true)
-
-            putString(ArgConsts.PREF_JOB_NAME, params.jobName)
-            putString(ArgConsts.PREF_TASK_NAME, params.taskName)
-            putBoolean(ArgConsts.PREF_IS_PAUSED, params.paused)
-            putLong(ArgConsts.PREF_ELAPSED_TIME, params.secondsElapsed)
-            putLong(ArgConsts.PREF_STOPPED_TIME, System.currentTimeMillis())
-
-            apply()
-        }
+        val sharedPref = getSharedPreferences(SharedPrefsHelper.FILE_NAME, Context.MODE_PRIVATE) ?: return
+        SharedPrefsHelper.writeParams(sharedPref, params)
     }
 }
