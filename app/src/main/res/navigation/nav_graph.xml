@@ -16,9 +16,9 @@
     </fragment>
     <fragment
         android:id="@+id/JobSettingsMenuFragment"
-        android:name="com.matthew.jobtracker.navdestinations.JobSettingsMenuFragment"
+        android:name="com.matthew.jobtracker.navdestinations.JobSettingsFragment"
         android:label="fragment_settings_menu"
-        tools:layout="@layout/fragment_job_settings_menu" >
+        tools:layout="@layout/fragment_job_settings" >
         <action
             android:id="@+id/action_SettingsMenuFragment_to_taskSettingsMenuFragment"
             app:destination="@id/TaskSettingsMenuFragment" />
@@ -28,9 +28,9 @@
     </fragment>
     <fragment
         android:id="@+id/TaskSettingsMenuFragment"
-        android:name="com.matthew.jobtracker.navdestinations.TaskSettingsMenuFragment"
+        android:name="com.matthew.jobtracker.navdestinations.TaskSettingsFragment"
         android:label="fragment_task_settings_menu"
-        tools:layout="@layout/fragment_task_settings_menu" >
+        tools:layout="@layout/fragment_task_settings" >
         <argument
             android:name="TaskList"
             app:argType="string[]" />

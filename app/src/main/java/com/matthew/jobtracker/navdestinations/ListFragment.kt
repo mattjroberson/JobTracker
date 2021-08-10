@@ -9,26 +9,29 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import com.matthew.jobtracker.helpers.DatabaseHelper
 import com.matthew.jobtracker.data.rv_items.ItemData
-import com.matthew.jobtracker.databinding.FragmentCurrentJobsBinding
 import com.matthew.jobtracker.helpers.RvAdapter
 
-abstract class ListFragment<ItemDataType : ItemData>(
-    private val name : String) : Fragment(), RvAdapter.OnItemListener {
+abstract class ListFragment<ItemDataType : ItemData, VbType : ViewBinding>(
+    private val name : String = "") : Fragment(), RvAdapter.OnItemListener {
 
-    private var _binding: FragmentCurrentJobsBinding? = null
-    private val binding get() = _binding!!
+    private var _binding: VbType? = null
+    protected val binding get() = _binding!!
 
-    private lateinit var db : DatabaseHelper
-    private lateinit var itemList : MutableList<ItemDataType>
+    protected var _recyclerView: RecyclerView? = null
+    protected val recyclerView get() = _recyclerView!!
+
+    protected lateinit var db : DatabaseHelper
+    protected var itemList : MutableList<ItemDataType> = mutableListOf()
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentCurrentJobsBinding.inflate(inflater, container, false)
+        _binding = getViewBinding()
         return binding.root
     }
 
@@ -36,11 +39,10 @@ abstract class ListFragment<ItemDataType : ItemData>(
         super.onViewCreated(view, savedInstanceState)
 
         db = DatabaseHelper(requireContext())
-        loadItemData()
+        loadListData()
 
+        setupViews()
         connectRecyclerAdapter()
-
-        binding.fab.setOnClickListener { onFabPressed() }
 
         requireActivity().apply{
             title = name
@@ -52,28 +54,35 @@ abstract class ListFragment<ItemDataType : ItemData>(
         }
     }
 
-    abstract fun loadItemData()
+    //TODO Maybe make this return the data
+    abstract fun loadListData()
 
-    abstract fun onFabPressed()
+    abstract fun getViewBinding() : VbType
+
+    abstract fun setupViews()
 
     abstract fun onBackButtonPressed()
 
-    abstract fun onItemSwipe(viewHolder : RecyclerView.ViewHolder)
+    abstract fun onItemSwipe(position : Int)
+
+    //TODO This should be its own interface
+    open fun onFabPressed(){ }
 
     private fun connectRecyclerAdapter(){
-        val graphListAdapter = RvAdapter(itemList, this)
+        val adapter = RvAdapter(itemList, this)
 
         val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT){
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder): Boolean {return true}
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                onItemSwipe(viewHolder)
+                onItemSwipe(viewHolder.adapterPosition)
+                adapter.notifyDataSetChanged()
             }
         }
 
-        binding.rvActiveJobs.apply{
-            adapter = graphListAdapter
+        recyclerView.apply{
+            this.adapter = adapter
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
             layoutManager = LinearLayoutManager(requireContext())
         }
@@ -82,6 +91,7 @@ abstract class ListFragment<ItemDataType : ItemData>(
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        _recyclerView = null
     }
 
 

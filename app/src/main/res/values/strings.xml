@@ -16,4 +16,6 @@
     <string name="timer_back_message">Finish task to return.</string>
     <string name="back_message">Press back again to close.</string>
     <string name="invalid_time_format">Time must by in the format "HH:MM"</string>
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
