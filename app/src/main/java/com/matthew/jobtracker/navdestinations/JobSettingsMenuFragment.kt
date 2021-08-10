@@ -10,13 +10,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.matthew.jobtracker.DatabaseHelper
-import com.matthew.jobtracker.DialogCallback
+import com.matthew.jobtracker.helpers.DatabaseHelper
+import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.rv_items.JobSettingItemData
 import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.databinding.FragmentJobSettingsMenuBinding
 import com.matthew.jobtracker.popups.NewSettingFragment
-import com.matthew.jobtracker.recyclerviews.RvAdapter
+import com.matthew.jobtracker.helpers.RvAdapter
 
 class JobSettingsMenuFragment : Fragment(), DialogCallback, RvAdapter.OnItemListener {
 

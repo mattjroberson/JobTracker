@@ -6,9 +6,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.text.format.DateUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import com.matthew.jobtracker.DatabaseHelper
+import com.matthew.jobtracker.helpers.DatabaseHelper
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.helpers.SharedPrefsHelper
 import com.matthew.jobtracker.data.Job
@@ -31,6 +32,10 @@ class TimerActivity : AppCompatActivity() {
         val args = intent.extras
         params = args?.getParcelable(ArgConsts.TIMER_PARAMS) ?: return
 
+        db = DatabaseHelper(this)
+        job = db.getCurrentJob(params.jobName) ?: Job(params.jobName)
+
+        //If timer was running before startup, get the elapsed time
         if(!params.paused && params.secondsElapsed > 0) calculateTimeElapsed()
 
         binding = ActivityTimerBinding.inflate(layoutInflater)
@@ -40,33 +45,43 @@ class TimerActivity : AppCompatActivity() {
         binding.textViewJob.text = params.jobName
         binding.textViewTask.text = params.taskName
 
-        db = DatabaseHelper(this)
-        job = db.getCurrentJob(params.jobName) ?: Job(params.jobName)
+        binding.buttonPauseResume.setOnClickListener { onPlayPause() }
+        binding.buttonFinish.setOnClickListener { onFinish() }
 
-        updatePlayPauseButton()
+        onBackPressedDispatcher.addCallback(this) { onBack(this) }
 
-        binding.buttonPauseResume.setOnClickListener {
-            params.paused = !params.paused
-            updatePlayPauseButton()
-        }
-
-        binding.buttonFinish.setOnClickListener {
-            finished = true
-            saveTask()
-
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra(ArgConsts.TIMER_FINISHED, true)
-            startActivity(intent)
-        }
-
-        onBackPressedDispatcher.addCallback(this) {
-            this.isEnabled = true
-            Toast.makeText(applicationContext, resources.getString(R.string.timer_back_message), Toast.LENGTH_SHORT).show()
-        }
-
+        setPlayPauseButton(params.paused)
         runTimer()
     }
 
+    override fun onStop() {
+        super.onStop()
+        if(!finished) saveState()
+    }
+
+    private fun onPlayPause(){
+        params.paused = !params.paused
+        setPlayPauseButton(params.paused)
+    }
+
+    private fun onFinish(){
+        finished = true
+        saveTask()
+        launchMainActivity()
+    }
+
+    private fun onBack(owner : OnBackPressedCallback){
+        owner.isEnabled = true
+        Toast.makeText(applicationContext, resources.getString(R.string.timer_back_message), Toast.LENGTH_SHORT).show()
+    }
+
+    //Save the active state for app reload
+    private fun saveState(){
+        val sharedPref = getSharedPreferences(SharedPrefsHelper.FILE_NAME, Context.MODE_PRIVATE) ?: return
+        SharedPrefsHelper.writeParams(sharedPref, params)
+    }
+
+    //Save the completed task on finish to the database
     private fun saveTask(){
         val timeRoundedToMins = roundSecondsToNearestMin(params.secondsElapsed)
         val task = Task(params.taskName, job.name, timeRoundedToMins)
@@ -88,17 +103,18 @@ class TimerActivity : AppCompatActivity() {
         return minutes
     }
 
-    private fun updatePlayPauseButton(){
-        val textId = if(params.paused) R.string.button_resume else R.string.button_pause
+    private fun setPlayPauseButton(paused : Boolean){
+        val textId = if(paused) R.string.button_resume else R.string.button_pause
         binding.buttonPauseResume.text = resources.getString(textId)
     }
 
-    override fun onStop() {
-        super.onStop()
-        if(!finished) saveState()
+    private fun launchMainActivity(){
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra(ArgConsts.TIMER_FINISHED, true)
+        startActivity(intent)
     }
 
-    //https://github.com/Aashrut/Android-Stopwatch-App
+    //Code Design: https://github.com/Aashrut/Android-Stopwatch-App
     private fun runTimer(){
         val handler = Handler()
 
@@ -112,10 +128,5 @@ class TimerActivity : AppCompatActivity() {
                 handler.postDelayed(this, 1000)
             }
         })
-    }
-
-    private fun saveState(){
-        val sharedPref = getSharedPreferences(SharedPrefsHelper.FILE_NAME, Context.MODE_PRIVATE) ?: return
-        SharedPrefsHelper.writeParams(sharedPref, params)
     }
 }

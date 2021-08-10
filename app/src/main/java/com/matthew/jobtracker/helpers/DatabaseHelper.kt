@@ -1,4 +1,4 @@
-package com.matthew.jobtracker
+package com.matthew.jobtracker.helpers
 
 import android.content.ContentValues
 import android.content.Context
@@ -50,37 +50,28 @@ class DatabaseHelper(context: Context):
     //region Get Data
 
     fun getCurrentJob(jobName: String) : Job?{
-        val jobs = getCurrentJobs()
+        val query = "SELECT * FROM '$TABLE_ACTIVE_JOBS' WHERE $COLUMN_NAME IS '$jobName'"
+        val db = this.writableDatabase
+        val cursor = db.rawQuery(query, null)
+        var job : Job? = null
 
-        jobs.forEach{
-            if(it.name == jobName) return it
+        if(cursor.moveToFirst()){
+            val serializedJob = cursor.getString(2)
+            job = Json.decodeFromString(serializedJob)
         }
 
-        return null
+        cursor.close()
+        return job
     }
 
     fun getCurrentJobs(): MutableList<Job> {
         val serializedList = getSerializedListFromTable(TABLE_ACTIVE_JOBS)
-        val jobList = mutableListOf<Job>()
-
-        serializedList.forEach { data ->
-            val job : Job = Json.decodeFromString(data)
-            jobList.add(job)
-        }
-
-        return jobList
+        return serializedList.map{Json.decodeFromString(it) as Job} as MutableList<Job>
     }
 
     fun getTemplates(): MutableList<JobTemplate> {
         val serializedList = getSerializedListFromTable(TABLE_TEMPLATE_JOBS)
-        val templateList = mutableListOf<JobTemplate>()
-
-        serializedList.forEach { data ->
-            val jobTemplate : JobTemplate = Json.decodeFromString(data)
-            templateList.add(jobTemplate)
-        }
-
-        return templateList
+        return serializedList.map{Json.decodeFromString(it) as JobTemplate} as MutableList<JobTemplate>
     }
 
     private fun getSerializedListFromTable(table: String): MutableList<String> {
@@ -98,9 +89,9 @@ class DatabaseHelper(context: Context):
         return serializedList
     }
 
-    fun deleteCurrentJob(name : String){ delete(TABLE_ACTIVE_JOBS, name)}
+    fun deleteCurrentJob(name : String){ delete(TABLE_ACTIVE_JOBS, name) }
 
-    fun deleteJobTemplate(name : String){ delete(TABLE_TEMPLATE_JOBS, name)}
+    fun deleteJobTemplate(name : String){ delete(TABLE_TEMPLATE_JOBS, name) }
 
     private fun delete(table : String, name : String){
         val db = this.writableDatabase

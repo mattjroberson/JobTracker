@@ -12,12 +12,12 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.matthew.jobtracker.DatabaseHelper
-import com.matthew.jobtracker.DialogCallback
+import com.matthew.jobtracker.helpers.DatabaseHelper
+import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.rv_items.CurrentTaskItemData
 import com.matthew.jobtracker.databinding.FragmentCurrentTasksBinding
 import com.matthew.jobtracker.popups.EditTaskFragment
-import com.matthew.jobtracker.recyclerviews.RvAdapter
+import com.matthew.jobtracker.helpers.RvAdapter
 
 class CurrentTasksFragment : Fragment(), DialogCallback, RvAdapter.OnItemListener{
     private lateinit var db : DatabaseHelper
@@ -42,8 +42,6 @@ class CurrentTasksFragment : Fragment(), DialogCallback, RvAdapter.OnItemListene
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        Log.i("TEST", "Hello")
-
         db = DatabaseHelper(requireContext())
         jobName = args.jobName
 
@@ -55,6 +53,7 @@ class CurrentTasksFragment : Fragment(), DialogCallback, RvAdapter.OnItemListene
 
         requireActivity().apply{
             title = "${job.name} Tasks"
+
             onBackPressedDispatcher.addCallback(this) {
                 this.isEnabled = true
                 navigateBackToCurrentJobs()

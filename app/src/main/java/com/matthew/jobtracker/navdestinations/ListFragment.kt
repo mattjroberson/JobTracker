@@ -1,34 +1,27 @@
 package com.matthew.jobtracker.navdestinations
 
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.matthew.jobtracker.helpers.DatabaseHelper
-import com.matthew.jobtracker.R
-import com.matthew.jobtracker.data.rv_items.CurrentJobItemData
+import com.matthew.jobtracker.data.rv_items.ItemData
 import com.matthew.jobtracker.databinding.FragmentCurrentJobsBinding
-import com.matthew.jobtracker.helpers.DialogCallback
-import com.matthew.jobtracker.popups.NewTaskFragment
 import com.matthew.jobtracker.helpers.RvAdapter
 
-class CurrentJobsFragment : Fragment(), RvAdapter.OnItemListener {
+abstract class ListFragment<ItemDataType : ItemData>(
+    private val name : String) : Fragment(), RvAdapter.OnItemListener {
+
     private var _binding: FragmentCurrentJobsBinding? = null
     private val binding get() = _binding!!
 
-    private var backBtnPressed = false
-
     private lateinit var db : DatabaseHelper
-    private lateinit var itemList : MutableList<CurrentJobItemData>
+    private lateinit var itemList : MutableList<ItemDataType>
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -43,44 +36,29 @@ class CurrentJobsFragment : Fragment(), RvAdapter.OnItemListener {
         super.onViewCreated(view, savedInstanceState)
 
         db = DatabaseHelper(requireContext())
-        itemList = db.getCurrentJobs().map{CurrentJobItemData(it)} as MutableList<CurrentJobItemData>
+        loadItemData()
 
         connectRecyclerAdapter()
 
-        binding.fab.setOnClickListener {
-            val newFragment = NewTaskFragment()
-            newFragment.show(parentFragmentManager, "new_task")
-        }
+        binding.fab.setOnClickListener { onFabPressed() }
 
         requireActivity().apply{
-            title = "Job Tracker"
+            title = name
 
             onBackPressedDispatcher.addCallback(this) {
                 this.isEnabled = true
-                if(backBtnPressed) navigateOutOfApp()
-                else notifyBackPressed()
+                onBackButtonPressed()
             }
         }
     }
 
-    override fun onItemClick(position: Int) {
-        val name = itemList[position].job.name
-        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(name)
-        findNavController().navigate(action)
-    }
+    abstract fun loadItemData()
 
-    private fun navigateOutOfApp(){
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_HOME)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
-    }
+    abstract fun onFabPressed()
 
-    private fun notifyBackPressed(){
-        backBtnPressed = true
-        Handler().postDelayed({ backBtnPressed = false }, 2000)
-        Toast.makeText(requireContext(), resources.getString(R.string.back_message), Toast.LENGTH_SHORT).show()
-    }
+    abstract fun onBackButtonPressed()
+
+    abstract fun onItemSwipe(viewHolder : RecyclerView.ViewHolder)
 
     private fun connectRecyclerAdapter(){
         val graphListAdapter = RvAdapter(itemList, this)
@@ -90,8 +68,7 @@ class CurrentJobsFragment : Fragment(), RvAdapter.OnItemListener {
                 target: RecyclerView.ViewHolder): Boolean {return true}
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                deleteJob(viewHolder.adapterPosition)
-                graphListAdapter.notifyDataSetChanged()
+                onItemSwipe(viewHolder)
             }
         }
 
@@ -100,12 +77,6 @@ class CurrentJobsFragment : Fragment(), RvAdapter.OnItemListener {
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
             layoutManager = LinearLayoutManager(requireContext())
         }
-    }
-
-    private fun deleteJob(position : Int){
-        val oldItem = itemList[position]
-        db.deleteCurrentJob(oldItem.job.name)
-        itemList.remove(oldItem)
     }
 
     override fun onDestroy() {

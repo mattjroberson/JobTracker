@@ -11,16 +11,15 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.matthew.jobtracker.DatabaseHelper
-import com.matthew.jobtracker.DialogCallback
-import com.matthew.jobtracker.data.rv_items.ItemData
+import com.matthew.jobtracker.helpers.DatabaseHelper
+import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.data.rv_items.TaskSettingItemData
 import com.matthew.jobtracker.databinding.FragmentTaskSettingsMenuBinding
 import com.matthew.jobtracker.popups.NewSettingFragment
-import com.matthew.jobtracker.recyclerviews.RvAdapter
+import com.matthew.jobtracker.helpers.RvAdapter
 
-class TaskSettingsMenuFragment : Fragment(), DialogCallback {
+class TaskSettingsMenuFragment : Fragment(), RvAdapter.OnItemListener, DialogCallback {
 
     private lateinit var db : DatabaseHelper
     private var _binding: FragmentTaskSettingsMenuBinding? = null
@@ -109,5 +108,9 @@ class TaskSettingsMenuFragment : Fragment(), DialogCallback {
         db.addJobTemplate(template)
 
         binding.rvPossibleTasks.adapter?.notifyDataSetChanged()
+    }
+
+    override fun onItemClick(position: Int) {
+        TODO("Not yet implemented")
     }
 }

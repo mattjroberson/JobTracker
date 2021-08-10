@@ -2,6 +2,7 @@ package com.matthew.jobtracker.activities
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
@@ -43,15 +44,17 @@ class MainActivity : AppCompatActivity() {
         val isTaskActive = sharedPref.getBoolean(SharedPrefsHelper.TASK_IS_ACTIVE, false)
 
         if(isTaskActive){
-            val intent = Intent(this, TimerActivity::class.java)
-            val timerParams = SharedPrefsHelper.readParams(sharedPref)
-
-            intent.putExtra(ArgConsts.TIMER_PARAMS, timerParams)
-            startActivity(intent)
+            launchTimerActivity(sharedPref)
         }
     }
 
+    private fun launchTimerActivity(sharedPref : SharedPreferences){
+        val intent = Intent(this, TimerActivity::class.java)
+        val timerParams = SharedPrefsHelper.readParams(sharedPref)
 
+        intent.putExtra(ArgConsts.TIMER_PARAMS, timerParams)
+        startActivity(intent)
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)

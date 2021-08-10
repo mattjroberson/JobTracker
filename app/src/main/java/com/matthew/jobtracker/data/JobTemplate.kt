@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class JobTemplate (
-    var name: String = "Default Name",
+    var name: String,
     var taskTemplates: MutableList<String> = mutableListOf()
 )

@@ -5,15 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Job (
-    var name: String = "Default Name",
+    var name: String,
     var taskList: MutableList<Task> = mutableListOf()
 ) {
     val prettyTotalTime : String
-        get() = DateUtils.formatElapsedTime(getTotalTime())
+        get() = DateUtils.formatElapsedTime(taskList.map{it.loggedTime}.sum())
 
-    private fun getTotalTime() : Long{
-        var sum : Long = 0
-        taskList.forEach { sum += it.loggedTime}
-        return sum
-    }
 }

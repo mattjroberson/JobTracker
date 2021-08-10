@@ -1,4 +1,4 @@
-package com.matthew.jobtracker
+package com.matthew.jobtracker.helpers
 
 interface DialogCallback{
     fun onDialogDismiss(response : String?)

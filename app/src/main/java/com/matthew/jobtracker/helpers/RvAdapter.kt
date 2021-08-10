@@ -1,4 +1,4 @@
-package com.matthew.jobtracker.recyclerviews
+package com.matthew.jobtracker.helpers
 
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +28,7 @@ class RvAdapter(private var dataList: MutableList<out ItemData>,
         return dataList.count()
     }
 
+    //Code Pattern: https://github.com/mitchtabian/SQLite-for-Beginners-2019
     inner class RvViewHolder(itemView: View, private val onItemListener: OnItemListener?) :
         RecyclerView.ViewHolder(itemView), View.OnClickListener{
 

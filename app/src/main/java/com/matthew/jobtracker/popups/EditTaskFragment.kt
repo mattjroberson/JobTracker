@@ -5,7 +5,7 @@ import android.app.Dialog
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import com.matthew.jobtracker.DialogCallback
+import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.databinding.DialogEditTaskBinding
 

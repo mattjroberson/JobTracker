@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
-import com.matthew.jobtracker.DatabaseHelper
+import com.matthew.jobtracker.helpers.DatabaseHelper
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.activities.ArgConsts
 import com.matthew.jobtracker.activities.TimerActivity
