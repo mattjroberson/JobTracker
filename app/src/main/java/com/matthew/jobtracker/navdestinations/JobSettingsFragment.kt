@@ -4,34 +4,21 @@ import androidx.navigation.fragment.findNavController
 import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.rv_items.JobSettingItemData
 import com.matthew.jobtracker.data.JobTemplate
-import com.matthew.jobtracker.databinding.FragmentJobSettingsBinding
 import com.matthew.jobtracker.popups.NewSettingFragment
 
 class JobSettingsFragment :
-    ListFragment<JobSettingItemData, FragmentJobSettingsBinding>("Jobs Settings"),
+    ListFragment<JobSettingItemData>("Jobs Settings"),
     DialogCallback {
 
-    override fun getViewBinding(): FragmentJobSettingsBinding {
-        return FragmentJobSettingsBinding.inflate(layoutInflater)
-    }
-
-    override fun setupViews(){
-        _recyclerView = binding.rvPossibleJobs
-        binding.fab.setOnClickListener { onFabPressed() }
-    }
-
-    override fun loadListData() {
+    override fun getListData() : MutableList<JobSettingItemData> {
         val templates = db.getTemplates()
-        itemList = templates.map{JobSettingItemData(it)}
+        return templates.map{JobSettingItemData(it)}
                 as MutableList<JobSettingItemData>
     }
 
     override fun onItemClick(position : Int){
         val jobItem = itemList[position]
-        val taskList = jobItem.template.taskTemplates.toTypedArray()
-
-        val action = JobSettingsFragmentDirections.actionSettingsMenuFragmentToTaskSettingsMenuFragment(taskList, jobItem.template.name)
-        findNavController().navigate(action)
+        navigateToTaskSetting(jobItem)
     }
 
     override fun onBackButtonPressed() {
@@ -57,7 +44,14 @@ class JobSettingsFragment :
 
         itemList.add(JobSettingItemData(newTemplate))
 
-        recyclerView.adapter?.notifyDataSetChanged()
+        binding.recyclerView.adapter?.notifyItemInserted(lastItemIndex)
+    }
+
+    private fun navigateToTaskSetting(jobItem : JobSettingItemData){
+        val taskList = jobItem.template.taskTemplates.toTypedArray()
+
+        val action = JobSettingsFragmentDirections.actionSettingsMenuFragmentToTaskSettingsMenuFragment(taskList, jobItem.template.name)
+        findNavController().navigate(action)
     }
 
     private fun navBackToActiveJobs(){

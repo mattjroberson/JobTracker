@@ -6,29 +6,18 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.data.rv_items.CurrentJobItemData
-import com.matthew.jobtracker.databinding.FragmentCurrentJobsBinding
 import com.matthew.jobtracker.popups.NewTaskFragment
 
-class CurrentJobsFragment : ListFragment<CurrentJobItemData, FragmentCurrentJobsBinding>("Job Tracker") {
+class CurrentJobsFragment : ListFragment<CurrentJobItemData>("Job Tracker") {
     private var backBtnPressed = false
 
-    override fun getViewBinding(): FragmentCurrentJobsBinding {
-        return FragmentCurrentJobsBinding.inflate(layoutInflater)
-    }
-
-    override fun setupViews(){
-        _recyclerView = binding.rvActiveJobs
-        binding.fab.setOnClickListener { onFabPressed() }
-    }
-
-    override fun loadListData() {
-        itemList = db.getCurrentJobs().map{CurrentJobItemData(it)} as MutableList<CurrentJobItemData>
+    override fun getListData() : MutableList<CurrentJobItemData> {
+        return db.getCurrentJobs().map{CurrentJobItemData(it)} as MutableList<CurrentJobItemData>
     }
 
     override fun onItemClick(position: Int) {
         val name = itemList[position].job.name
-        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(name)
-        findNavController().navigate(action)
+        navigateToCurrentTasks(name)
     }
 
     override fun onFabPressed() {
@@ -50,6 +39,11 @@ class CurrentJobsFragment : ListFragment<CurrentJobItemData, FragmentCurrentJobs
         intent.addCategory(Intent.CATEGORY_HOME)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(intent)
+    }
+
+    private fun navigateToCurrentTasks(jobName : String){
+        val action = CurrentJobsFragmentDirections.actionActiveJobsFragmentToActiveTasksFragment(jobName)
+        findNavController().navigate(action)
     }
 
     private fun notifyBackPressed(){

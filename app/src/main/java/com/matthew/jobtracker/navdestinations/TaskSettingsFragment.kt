@@ -5,26 +5,15 @@ import androidx.navigation.fragment.navArgs
 import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.JobTemplate
 import com.matthew.jobtracker.data.rv_items.TaskSettingItemData
-import com.matthew.jobtracker.databinding.FragmentTaskSettingsBinding
 import com.matthew.jobtracker.popups.NewSettingFragment
 
-class TaskSettingsFragment : ListFragment<TaskSettingItemData, FragmentTaskSettingsBinding>("Task Settings"),
-    DialogCallback {
+class TaskSettingsFragment : ListFragment<TaskSettingItemData>("Task Settings"), DialogCallback {
 
     private val args : TaskSettingsFragmentArgs by navArgs()
 
-    override fun getViewBinding(): FragmentTaskSettingsBinding {
-        return FragmentTaskSettingsBinding.inflate(layoutInflater)
-    }
-
-    override fun setupViews(){
-        _recyclerView = binding.rvPossibleTasks
-        binding.fab.setOnClickListener { onFabPressed() }
-    }
-
-    override fun loadListData() {
+    override fun getListData() : MutableList<TaskSettingItemData> {
         val possibleTasks = args.taskList.toMutableList()
-        itemList = possibleTasks.map{ TaskSettingItemData(it) }
+        return possibleTasks.map{ TaskSettingItemData(it) }
                 as MutableList<TaskSettingItemData>
     }
 
@@ -64,6 +53,6 @@ class TaskSettingsFragment : ListFragment<TaskSettingItemData, FragmentTaskSetti
         val template = JobTemplate(args.job, itemList.map{it.text} as MutableList<String>)
         db.addJobTemplate(template)
 
-        recyclerView.adapter?.notifyDataSetChanged()
+        binding.recyclerView.adapter?.notifyItemChanged(lastItemIndex)
     }
 }

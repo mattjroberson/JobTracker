@@ -1,39 +1,37 @@
 package com.matthew.jobtracker.navdestinations
 
+import android.os.Bundle
+import android.view.View
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.data.rv_items.CurrentTaskItemData
-import com.matthew.jobtracker.databinding.FragmentCurrentTasksBinding
 import com.matthew.jobtracker.popups.EditTaskFragment
 
 class CurrentTasksFragment :
-    ListFragment<CurrentTaskItemData, FragmentCurrentTasksBinding>(),
-    DialogCallback {
+    ListFragment<CurrentTaskItemData>(), DialogCallback {
 
-    //title = "${job.name} Tasks"
     private lateinit var jobName : String
 
     private val args : CurrentTasksFragmentArgs by navArgs()
     private var editingPosition : Int = 0
 
-    override fun getViewBinding(): FragmentCurrentTasksBinding {
-        return FragmentCurrentTasksBinding.inflate(layoutInflater)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setTitle("$jobName Tasks")
+        setFabEnabled(false)
     }
 
-    override fun setupViews() {
-        _recyclerView = binding.rvActiveTasks
-    }
-
-    override fun loadListData() {
+    override fun getListData() : MutableList<CurrentTaskItemData> {
         jobName = args.jobName
-
         val job = db.getCurrentJob(jobName)
 
         if(job != null){
-            itemList = job.taskList.map{CurrentTaskItemData(it)}
+            return job.taskList.map{CurrentTaskItemData(it)}
                     as MutableList<CurrentTaskItemData>
         }
+
+        return mutableListOf()
     }
 
     override fun onItemClick(position: Int) {
@@ -58,7 +56,7 @@ class CurrentTasksFragment :
         if(response == null) return
 
         editTaskTimeAtPos(response, editingPosition)
-        recyclerView.adapter?.notifyDataSetChanged()
+        binding.recyclerView.adapter?.notifyItemChanged(editingPosition)
     }
 
     private fun removeTaskAtPos(position: Int){

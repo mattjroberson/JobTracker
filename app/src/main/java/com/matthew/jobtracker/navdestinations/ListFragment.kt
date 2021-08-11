@@ -9,39 +9,41 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewbinding.ViewBinding
 import com.matthew.jobtracker.helpers.DatabaseHelper
 import com.matthew.jobtracker.data.rv_items.ItemData
+import com.matthew.jobtracker.databinding.FragmentListBinding
 import com.matthew.jobtracker.helpers.RvAdapter
 
-abstract class ListFragment<ItemDataType : ItemData, VbType : ViewBinding>(
-    private val name : String = "") : Fragment(), RvAdapter.OnItemListener {
+abstract class ListFragment<ItemDataType : ItemData>(private val name : String = "") :
+    Fragment(), RvAdapter.OnItemListener {
 
-    private var _binding: VbType? = null
+    private var _binding: FragmentListBinding? = null
     protected val binding get() = _binding!!
 
-    protected var _recyclerView: RecyclerView? = null
-    protected val recyclerView get() = _recyclerView!!
+    private var _db: DatabaseHelper? = null
+    protected val db get() = _db!!
 
-    protected lateinit var db : DatabaseHelper
-    protected var itemList : MutableList<ItemDataType> = mutableListOf()
+    private lateinit var _itemList : MutableList<ItemDataType>
+    protected val itemList get() = _itemList
+
+    protected val lastItemIndex get() = itemList.size-1
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = getViewBinding()
+        _binding = FragmentListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        db = DatabaseHelper(requireContext())
-        loadListData()
+        _db = DatabaseHelper(requireContext())
+        _itemList = getListData()
 
-        setupViews()
+        binding.fab.setOnClickListener { onFabPressed() }
         connectRecyclerAdapter()
 
         requireActivity().apply{
@@ -54,12 +56,15 @@ abstract class ListFragment<ItemDataType : ItemData, VbType : ViewBinding>(
         }
     }
 
-    //TODO Maybe make this return the data
-    abstract fun loadListData()
+    protected fun setFabEnabled(enabled : Boolean){
+        binding.fab.isEnabled = enabled
+    }
 
-    abstract fun getViewBinding() : VbType
+    protected fun setTitle(title : String){
+        requireActivity().title = title
+    }
 
-    abstract fun setupViews()
+    abstract fun getListData() : MutableList<ItemDataType>
 
     abstract fun onBackButtonPressed()
 
@@ -77,11 +82,11 @@ abstract class ListFragment<ItemDataType : ItemData, VbType : ViewBinding>(
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 onItemSwipe(viewHolder.adapterPosition)
-                adapter.notifyDataSetChanged()
+                adapter.notifyItemRemoved(viewHolder.adapterPosition)
             }
         }
 
-        recyclerView.apply{
+        binding.recyclerView.apply{
             this.adapter = adapter
             ItemTouchHelper(itemTouchCallback).attachToRecyclerView(this)
             layoutManager = LinearLayoutManager(requireContext())
@@ -91,7 +96,7 @@ abstract class ListFragment<ItemDataType : ItemData, VbType : ViewBinding>(
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
-        _recyclerView = null
+        _db = null
     }
 
 
