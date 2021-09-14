@@ -9,8 +9,8 @@ import com.matthew.jobtracker.helpers.DialogCallback
 import com.matthew.jobtracker.R
 import com.matthew.jobtracker.databinding.DialogNewSettingBinding
 
-//Popup for creating new tasks.
-//Call from the fab button.
+//Popup for creating new settings.
+//Call from the JobSettingsFragment & TaskSettingsFragment fab button.
 
 class NewSettingFragment : DialogFragment() {
 

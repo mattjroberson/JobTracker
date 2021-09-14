@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/dialog_edit_task.xml" value="0.136" />
+        <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/dialog_new_setting.xml" value="0.13020833333333334" />
+        <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/dialog_new_task.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/fragment_current_jobs.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/fragment_current_tasks.xml" value="0.13020833333333334" />
         <entry key="..\:/Users/mattj/Documents/JobTracker3/app/src/main/res/layout/fragment_job_settings.xml" value="0.13020833333333334" />

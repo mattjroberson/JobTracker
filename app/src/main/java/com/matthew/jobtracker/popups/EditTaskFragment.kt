@@ -10,8 +10,8 @@ import com.matthew.jobtracker.R
 import com.matthew.jobtracker.databinding.DialogEditTaskBinding
 
 
-//Popup for creating new tasks.
-//Call from the fab button.
+//Popup for editing time on task.
+//Call from the CurrentTasksFragment fab button.
 
 class EditTaskFragment : DialogFragment() {
 
@@ -80,13 +80,8 @@ class EditTaskFragment : DialogFragment() {
             else if(minutes == null || minutes < 0 || minutes >= 60) valid = false
         }
 
-        if(!valid){
-            Toast.makeText(
-                requireContext(),
-                resources.getString(R.string.invalid_time_format),
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        if(!valid) displayErrorToast()
+
         return valid
     }
 
@@ -103,6 +98,14 @@ class EditTaskFragment : DialogFragment() {
     private fun saveData(prettyTime: String){
         val newMinutes = convertPrettyTimeToMinutes(prettyTime) ?: return
         notifyFragment(newMinutes.toString())
+    }
+
+    private fun displayErrorToast(){
+        Toast.makeText(
+            requireContext(),
+            resources.getString(R.string.invalid_time_format),
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     private fun notifyFragment(prettyTime: String){

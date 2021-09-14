@@ -20,7 +20,7 @@ import com.matthew.jobtracker.data.TimerParams
 import com.matthew.jobtracker.databinding.DialogNewTaskBinding
 
 //Popup for creating new tasks.
-//Call from the fab button.
+//Call from the CurrentJobsFragment fab button.
 
 class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
 
@@ -32,7 +32,12 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     private var _binding: DialogNewTaskBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var alertDialog : AlertDialog
+    private var _db : DatabaseHelper? = null
+    private val db get() = _db!!
+
+    private var _alertDialog : AlertDialog? = null
+    private val alertDialog get() = _alertDialog!!
+
     private lateinit var templateList : MutableList<JobTemplate>
     private var currentJob = 0
     private var currentTask = 0
@@ -45,7 +50,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
             _binding = DialogNewTaskBinding.inflate(inflater)
 
             //Retrieve job templates from database
-            val db = DatabaseHelper(requireContext())
+            _db = DatabaseHelper(requireContext())
             templateList = db.getTemplates()
 
             val jobStrings = mutableListOf(SELECT_JOB)
@@ -64,7 +69,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
                 .setNegativeButton(R.string.new_task_cancel) { _, _ -> }
 
             // Create the AlertDialog object
-            alertDialog = builder.create()
+            _alertDialog = builder.create()
 
             //Disable "OK" initially
             alertDialog.setOnShowListener{
@@ -113,8 +118,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
         }
     }
 
-    override fun onNothingSelected(p0: AdapterView<*>?) {
-    }
+    override fun onNothingSelected(p0: AdapterView<*>?) {}
 
     //Check to see that both input fields are valid, update positive button accordingly
     private fun handleValidInput(id : Int, index : Int){
@@ -145,5 +149,7 @@ class NewTaskFragment : DialogFragment(), AdapterView.OnItemSelectedListener {
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
+        _db = null
+        _alertDialog = null
     }
 }
