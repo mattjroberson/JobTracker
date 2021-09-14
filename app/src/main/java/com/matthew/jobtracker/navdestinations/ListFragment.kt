@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.addCallback
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -58,6 +59,7 @@ abstract class ListFragment<ItemDataType : ItemData>(private val name : String =
 
     protected fun setFabEnabled(enabled : Boolean){
         binding.fab.isEnabled = enabled
+        binding.fab.isVisible = enabled
     }
 
     protected fun setTitle(title : String){
